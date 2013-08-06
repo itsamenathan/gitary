@@ -1,7 +1,7 @@
-== Summery ==
+#Summery
 This is an idea for a daily diary/life tracking.
 
-== Requirements ==
+##Requirements
 * Multiple entries per day
 * In-line tags, probably @
 * ~~Year, Month, directory structure~~
@@ -11,11 +11,11 @@ This is an idea for a daily diary/life tracking.
 * Search tags
 * Save/link random files
 
-== Options ==
+##Options
 * Backend git
 * Colors for search terms
 
-== args ==
+##args
 -m : quick one line addition to diary
 -c : config file
 edit : open editor
