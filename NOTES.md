@@ -1,4 +1,4 @@
-#Summery
+[[#Summery]]
 This is an idea for a daily diary/life tracking.
 
 ##Requirements
@@ -16,7 +16,9 @@ This is an idea for a daily diary/life tracking.
 * Colors for search terms
 
 ##args
--m : quick one line addition to diary
--c : config file
-edit : open editor
-edit yestery : open edit passing in rest of line as -d option to date
+* -c : config file
+* ~~-d : modify date~~
+* -h : help
+* ~~-m : quick one line addition to diary~~
+* edit : open editor
+* edit yestery : open edit passing in rest of line as -d option to date

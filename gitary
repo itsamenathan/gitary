@@ -1,18 +1,29 @@
 #!/bin/bash
 
+DATEDIFF=""
+DATE=""
+
 edit(){
-  date=$1
-  read Y M D h m s <<< ${date//[-: ]/ }
+  setEditDate
+  read Y M D h m s <<< ${DATE//[-: ]/ }
   [ ! -d "$GITDIR/$Y/$M" ] && mkdir -p "$GITDIR/$Y/$M"
-  $EDITOR "$GITDIR/$Y/$M/$D"
+  [ -z "$1" ] && $EDITOR "$GITDIR/$Y/$M/$D" || echo "$1" >> "$GITDIR/$Y/$M/$D"
   commit
 }
 
 commit (){
   cd "$GITDIR"
-  git add "."
+  git add -A "."
   git commit -m "Auto commit 
  $(git status --porcelain)"
+}
+
+setEditDate (){
+  if [ -z "$DATEDIFF" ]; then
+    DATE=$(date +'%Y-%m-%d %H:%M:%S')
+  else
+    DATE=$(date $DATEDIFF +'%Y-%m-%d %H:%M:%S')
+  fi
 }
 
 if [ -f "$HOME/.gitary" ]; then
@@ -27,7 +38,34 @@ if [ ! -d "$GITDIR/.git" ]; then
   exit
 fi
 
-#ndays="-d +1 days"
-#date=$(date "$ndays" +'%Y-%m-%d %H:%M:%S')
-date=$(date +'%Y-%m-%d %H:%M:%S')
-edit $date
+ARGS=$(getopt -o d:ehm: -l "date:,edit,help,message:" -n "gitary" -- "$@");
+eval set -- "$ARGS";
+while true; do
+  case "$1" in
+    -d|--date)
+      shift;
+      if [ -n "$1" ]; then
+        DATEDIFF="-d $1";
+        shift;
+      fi 
+      ;;
+    -e|--edit)
+      shift;
+      edit
+      exit
+      ;;
+    -h|--help)
+      shift;
+      echo "print help";
+      ;;
+    -m|--message)
+      shift;
+      edit "$1"
+      shift;
+      ;;
+    --)
+      shift;
+      break;
+      ;;
+  esac
+done
