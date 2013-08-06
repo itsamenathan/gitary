@@ -1,0 +1,33 @@
+#!/bin/bash
+
+edit(){
+  date=$1
+  read Y M D h m s <<< ${date//[-: ]/ }
+  [ ! -d "$GITDIR/$Y/$M" ] && mkdir -p "$GITDIR/$Y/$M"
+  $EDITOR "$GITDIR/$Y/$M/$D"
+  commit
+}
+
+commit (){
+  cd "$GITDIR"
+  git add "."
+  git commit -m "Auto commit 
+ $(git status --porcelain)"
+}
+
+if [ -f "$HOME/.gitary" ]; then
+  source "$HOME/.gitary"
+else
+  echo "Coulnd't find a config file"
+  exit
+fi
+
+if [ ! -d "$GITDIR/.git" ]; then
+  echo "Not a git repo!"
+  exit
+fi
+
+#ndays="-d +1 days"
+#date=$(date "$ndays" +'%Y-%m-%d %H:%M:%S')
+date=$(date +'%Y-%m-%d %H:%M:%S')
+edit $date
