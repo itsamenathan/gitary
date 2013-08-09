@@ -1,40 +1,36 @@
 #!/bin/bash
 
-DATEDIFF=""
-DATE=""
+datediff=""
+date=""
 
 edit(){
   setEditDate
-  read Y M D h m s <<< ${DATE//[-: ]/ }
-  [ ! -d "$GITDIR/$Y/$M" ] && mkdir -p "$GITDIR/$Y/$M"
-  [ -z "$1" ] && $EDITOR "$GITDIR/$Y/$M/$D" || echo "$1" >> "$GITDIR/$Y/$M/$D"
+  read Y M D h m s <<< ${date//[-: ]/ }
+  [ ! -d "$gitary_data/$Y/$M" ] && mkdir -p "$gitary_data/$Y/$M"
+  [ -z "$1" ] && $EDITOR "$gitary_data/$Y/$M/$D" || echo "$1" >> "$gitary_data/$Y/$M/$D"
   commit
 }
 
 commit (){
-  cd "$GITDIR"
+  cd "$gitary_data"
   git add -A "."
   git commit -m "Auto commit 
  $(git status --porcelain)"
 }
 
 setEditDate (){
-  if [ -z "$DATEDIFF" ]; then
-    DATE=$(date +'%Y-%m-%d %H:%M:%S')
+  if [ -z "$datediff" ]; then
+    date=$(date +'%Y-%m-%d %H:%M:%S')
   else
-    DATE=$(date $DATEDIFF +'%Y-%m-%d %H:%M:%S')
+    date=$(date $datediff +'%Y-%m-%d %H:%M:%S')
   fi
 }
 
-if [ -f "$HOME/.gitary" ]; then
-  source "$HOME/.gitary"
-else
-  echo "Coulnd't find a config file"
-  exit
-fi
+[ -z "$GITARY_DATA" ] && gitary_data="$HOME/.gitary" || gitary_data=$GITARY_DATA
 
-if [ ! -d "$GITDIR/.git" ]; then
-  echo "Not a git repo!"
+if [ ! -d "$gitary_data/.git" ]; then
+  echo "$gitary_data is not a git repo!"
+  echo 'Please run `git init` inside '$gitary_data
   exit
 fi
 
@@ -45,7 +41,7 @@ while true; do
     -d|--date)
       shift;
       if [ -n "$1" ]; then
-        DATEDIFF="-d $1";
+        datediff="-d $1";
         shift;
       fi 
       ;;
