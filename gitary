@@ -2,12 +2,13 @@
 
 datediff=""
 date=""
+commitmsg=""
 
 edit(){
   setEditDate
   read Y M D h m s <<< ${date//[-: ]/ }
   [ ! -d "$gitary_data/$Y/$M" ] && mkdir -p "$gitary_data/$Y/$M"
-  [ -z "$1" ] && $EDITOR "$gitary_data/$Y/$M/$D" || echo "$1" >> "$gitary_data/$Y/$M/$D"
+  [ -z "$commitmsg" ] && $EDITOR "$gitary_data/$Y/$M/$D" || echo "$commitmsg" >> "$gitary_data/$Y/$M/$D"
   commit
 }
 
@@ -22,33 +23,36 @@ setEditDate (){
   if [ -z "$datediff" ]; then
     date=$(date +'%Y-%m-%d %H:%M:%S')
   else
-    date=$(date $datediff +'%Y-%m-%d %H:%M:%S')
+    date=$(date -d "$datediff" +'%Y-%m-%d %H:%M:%S')
   fi
+}
+
+commands (){
+  case "$1" in
+    "edit")
+      edit
+      ;;
+  esac
 }
 
 [ -z "$GITARY_DATA" ] && gitary_data="$HOME/.gitary" || gitary_data=$GITARY_DATA
 
 if [ ! -d "$gitary_data/.git" ]; then
-  echo "$gitary_data is not a git repo!"
-  echo 'Please run `git init` inside '$gitary_data
+  echo "$gitary_data is not a git repo, please run \`git init\` inside"
+  echo "Or set GITARY_DATA to your git directory"
   exit
 fi
 
-ARGS=$(getopt -o d:ehm: -l "date:,edit,help,message:" -n "gitary" -- "$@");
+ARGS=$(getopt -o d:hm: -l "date:,help,message:" -n "gitary" -- "$@");
 eval set -- "$ARGS";
 while true; do
   case "$1" in
     -d|--date)
       shift;
       if [ -n "$1" ]; then
-        datediff="-d $1";
+        datediff="$1";
         shift;
       fi 
-      ;;
-    -e|--edit)
-      shift;
-      edit
-      exit
       ;;
     -h|--help)
       shift;
@@ -56,11 +60,12 @@ while true; do
       ;;
     -m|--message)
       shift;
-      edit "$1"
+      commitmsg=$1
       shift;
       ;;
     --)
       shift;
+      commands "$1"
       break;
       ;;
   esac
