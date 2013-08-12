@@ -32,7 +32,18 @@ commands (){
     "edit")
       edit
       ;;
+    *)
+      echo "Try --help, because $1 didn't work"
+      ;;
   esac
+}
+
+help (){
+  echo "
+edit to edit
+-d to change the edit date
+-h for this help file"
+  exit
 }
 
 [ -z "$GITARY_DATA" ] && gitary_data="$HOME/.gitary" || gitary_data=$GITARY_DATA
@@ -56,7 +67,7 @@ while true; do
       ;;
     -h|--help)
       shift;
-      echo "print help";
+      help
       ;;
     -m|--message)
       shift;
