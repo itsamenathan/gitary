@@ -15,8 +15,15 @@ edit(){
 commit (){
   cd "$gitary_data"
   git add -A "."
-  git commit -m "Auto commit 
+  [ -n "$(git status --porcelain)" ] && git commit -m "Auto commit 
  $(git status --porcelain)"
+}
+
+search (){
+  needle="$@"
+  cd "$gitary_data"
+  found=$(grep --exclude-dir=.git -R "$needle" . | sed 's/.\///' | sed 's/:/ => /')
+  echo "$found"
 }
 
 setEditDate (){
@@ -31,6 +38,10 @@ commands (){
   case "$1" in
     "edit")
       edit
+      ;;
+    "search")
+      shift
+      search $@
       ;;
     *)
       echo "Try --help, because $1 didn't work"
@@ -76,7 +87,7 @@ while true; do
       ;;
     --)
       shift;
-      commands "$1"
+      commands "$@"
       break;
       ;;
   esac
