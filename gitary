@@ -22,7 +22,7 @@ commit (){
 search (){
   needle="$@"
   cd "$gitary_data"
-  found=$(grep --exclude-dir=.git -R "$needle" . | sed 's/.\///' | sed 's/:/ => /')
+  found=$(grep --exclude-dir=.git -Re "$needle" . | sed 's/.\///' | sed 's/:/ => /')
   echo "$found"
 }
 
