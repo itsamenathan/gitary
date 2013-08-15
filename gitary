@@ -21,6 +21,7 @@ commit (){
 
 search (){
   needle="$@"
+  [ -z "$needle" ] && return
   cd "$gitary_data"
   found=$(grep --exclude-dir=.git -Re "$needle" . | sed 's/.\///' | sed 's/:/ => /')
   echo "$found"
