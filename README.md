@@ -4,8 +4,8 @@ A diary....err life tracking application.  The idea is to easily and quickly log
 
 Usage
 =====
-edit : edit todays files
--d : set a date for the file to edit
--m : add text to the end of the file
-search : regex search through all files
--h : help?
+* edit : edit todays files
+* -d : set a date for the file to edit
+* -m : add text to the end of the file
+* search : regex search through all files
+* -h : help?
