@@ -1,8 +1,9 @@
 #!/bin/bash
 
-datediff=""
-date=""
-commitmsg=""
+datediff=''
+date=''
+commitmsg=''
+tags=''
 
 edit(){
   setEditDate
@@ -20,10 +21,19 @@ commit (){
 }
 
 search (){
-  needle="$@"
-  [ -z "$needle" ] && return
   cd "$gitary_data"
-  found=$(grep --exclude-dir=.git -Re "$needle" . | sed 's/.\///' | sed 's/:/ => /')
+  needle="$@"
+  #[ -z "$needle" ] && return
+  if [ -n "$tags" ]; then
+    echo "          Tags                 "
+    echo "-------------------------------"
+    found=$(grep --exclude-dir=.git -Re "$tags" . | sed 's/.\///' | sed 's/:/ => /')
+  fi
+  if [ -n "$needle" ]; then
+    echo "          Term                 "
+    echo "-------------------------------"
+    found=$(grep --color --exclude-dir=.git -Re "$needle" . | sed 's/.\///' | sed 's/:/ => /')
+  fi
   echo "$found"
 }
 
@@ -66,7 +76,7 @@ if [ ! -d "$gitary_data/.git" ]; then
   exit
 fi
 
-ARGS=$(getopt -o d:hm: -l "date:,help,message:" -n "gitary" -- "$@");
+ARGS=$(getopt -o d:hm:t: -l "date:,help,message:tags:" -n "gitary" -- "$@");
 eval set -- "$ARGS";
 while true; do
   case "$1" in
@@ -85,6 +95,13 @@ while true; do
       shift;
       commitmsg=$1
       shift;
+      ;;
+    -t|--tags)
+      shift;
+      if [ -n "$1" ]; then
+        tags="$1";
+        shift;
+      fi 
       ;;
     --)
       shift;
