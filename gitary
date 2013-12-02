@@ -3,7 +3,6 @@
 datediff=''
 date=''
 commitmsg=''
-tags=''
 
 edit(){
   setEditDate
@@ -23,18 +22,12 @@ commit (){
 search (){
   cd "$gitary_data"
   needle="$@"
-  #[ -z "$needle" ] && return
-  if [ -n "$tags" ]; then
-    echo "          Tags                 "
-    echo "-------------------------------"
-    found=$(grep --exclude-dir=.git -Re "$tags" . | sed 's/.\///' | sed 's/:/ => /')
-  fi
   if [ -n "$needle" ]; then
     echo "          Term                 "
     echo "-------------------------------"
     found=$(grep --color --exclude-dir=.git -Re "$needle" . | sed 's/.\///' | sed 's/:/ => /')
+    echo "$found"
   fi
-  echo "$found"
 }
 
 setEditDate (){
@@ -62,7 +55,8 @@ commands (){
 
 help (){
   echo "
-edit to edit
+edit - edit today
+search - simple grep for term
 -d to change the edit date
 -h for this help file"
   exit
@@ -76,7 +70,7 @@ if [ ! -d "$gitary_data/.git" ]; then
   exit
 fi
 
-ARGS=$(getopt -o d:hm:t: -l "date:,help,message:tags:" -n "gitary" -- "$@");
+ARGS=$(getopt -o d:hm:t: -l "date:,help,message:" -n "gitary" -- "$@");
 eval set -- "$ARGS";
 while true; do
   case "$1" in
@@ -95,13 +89,6 @@ while true; do
       shift;
       commitmsg=$1
       shift;
-      ;;
-    -t|--tags)
-      shift;
-      if [ -n "$1" ]; then
-        tags="$1";
-        shift;
-      fi 
       ;;
     --)
       shift;
