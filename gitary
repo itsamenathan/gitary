@@ -3,13 +3,38 @@
 datediff=''
 date=''
 commitmsg=''
+template=''
 
 edit(){
   setEditDate
+  # parse date into variables 
   read Y M D h m s <<< ${date//[-: ]/ }
+  # Make path for new files 
   [ ! -d "$gitary_data/$Y/$M" ] && mkdir -p "$gitary_data/$Y/$M"
-  [ -z "$commitmsg" ] && $EDITOR "$gitary_data/$Y/$M/$D" || echo "$commitmsg" >> "$gitary_data/$Y/$M/$D"
+  if [ "$commitmsg" ]; then
+    echo "$commitmsg" >> "$gitary_data/$Y/$M/$D"
+  else
+    openeditor "$gitary_data/$Y/$M/$D"
+  fi
   commit
+}
+
+openeditor (){
+  file="$@"
+  # If its a new file, open our default template
+  if [ ! -f $file ]; then
+    case "$EDITOR" in
+      "vim")
+        $EDITOR $file +"read $template"
+        ;;
+      *)
+        echo "Sorry I don't know how to use $EDITOR"
+        $EDITOR $file 
+        ;;
+    esac
+  else
+    $EDITOR $file 
+  fi
 }
 
 commit (){
@@ -55,14 +80,17 @@ commands (){
 
 help (){
   echo "
-edit - edit today
-search - simple grep for term
--d to change the edit date
--h for this help file"
+edit   - Edit today.
+search - Simple grep for term.
+-d -> Set edit date.
+-h -> Show help file.
+-m -> Quick add.
+"
   exit
 }
 
 [ -z "$GITARY_DATA" ] && gitary_data="$HOME/.gitary" || gitary_data=$GITARY_DATA
+template="$gitary_data/template"
 
 if [ ! -d "$gitary_data/.git" ]; then
   echo "$gitary_data is not a git repo, please run \`git init\` inside"
