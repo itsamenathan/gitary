@@ -42,7 +42,7 @@ commit (){
   git add -A "."
   [ -n "$(git status --porcelain)" ] && git commit -m "Auto commit 
  $(git status --porcelain)"
- git push
+ [ $(git status --porcelain | wc -l) -gt 0 ] && git push
 }
 
 search (){
