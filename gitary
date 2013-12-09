@@ -32,17 +32,21 @@ openeditor (){
         $EDITOR $file 
         ;;
     esac
+  # Just open the file
   else
     $EDITOR $file 
   fi
 }
 
 commit (){
+  # go to our entry directory
   cd "$gitary_data"
+  # add all the files, and commit with list offiles added 
   git add -A "."
   [ -n "$(git status --porcelain)" ] && git commit -m "Auto commit 
  $(git status --porcelain)"
- [ $(git status --porcelain | wc -l) -gt 0 ] && git push
+ # Push to origin if changes have been commited
+ [ $(git shortlog origin/master..master | wc -l ) -gt 0 ] && git push
 }
 
 search (){
