@@ -55,7 +55,7 @@ search (){
   if [ -n "$needle" ]; then
     echo "          Term                 "
     echo "-------------------------------"
-    found=$(grep --color --exclude-dir=.git -Re "$needle" . | sed 's/.\///' | sed 's/:/ => /')
+    found=$(grep --color --exclude-dir=.git -RP "$needle" . | sed 's/.\///' | sed 's/:/ => /')
     echo "$found"
   fi
 }
