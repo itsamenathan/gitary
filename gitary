@@ -5,6 +5,18 @@ date=''
 commitmsg=''
 template=''
 
+add(){
+  shift
+  setEditDate
+  read Y M D h m s <<< ${date//[-: ]/ }
+  for file in $@
+  do
+    cp $file $gitary_data/$Y/$M/
+    echo "$file added" >> $gitary_data/$Y/$M/$D
+  done
+  edit
+}
+
 edit(){
   setEditDate
   # parse date into variables 
@@ -70,6 +82,9 @@ setEditDate (){
 
 commands (){
   case "$1" in
+    "add")
+      add $@
+      ;;
     "edit")
       edit
       ;;
