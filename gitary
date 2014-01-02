@@ -113,7 +113,9 @@ help (){
   echo "
 Commands
 ---------------------------------
+add    - Add arbitrary file.
 edit   - Edit today.
+log    - Show git log.
 search - Simple grep for term.
 -d -> Set edit date.
 -h -> Show help file.
