@@ -12,7 +12,7 @@ add(){
   for file in $@
   do
     cp $file $gitary_data/$Y/$M/
-    echo "$file added" >> $gitary_data/$Y/$M/$D
+    echo "!file $file" >> $gitary_data/$Y/$M/$D
   done
   edit
 }
@@ -31,6 +31,26 @@ edit(){
   commit
 }
 
+search (){
+  cd "$gitary_data"
+  needle="$@"
+  if [ -n "$needle" ]; then
+    echo "          Term                 "
+    echo "-------------------------------"
+    found=$(grep --color --exclude-dir=.git -RP "$needle" . | sed 's/.\///' | sed 's/:/ => /')
+    echo "$found"
+  fi
+}
+
+log(){
+  cd "$gitary_data"
+  if hash tig 2>/dev/null; then
+    tig
+  else
+    git log --color --graph --pretty=format:'%Cred%h%Creset -%C(yellow)%d%Creset %s %Cgreen(%cr) %C(bold blue)<%an>%Creset' --abbrev-commit
+  fi
+}
+
 openeditor (){
   file="$@"
   # If its a new file, open our default template
@@ -40,7 +60,6 @@ openeditor (){
         $EDITOR $file +"read $template"
         ;;
       *)
-        echo "Sorry I don't know how to use $EDITOR"
         $EDITOR $file 
         ;;
     esac
@@ -61,17 +80,6 @@ commit (){
  [ $(git shortlog origin/master..master | wc -l ) -gt 0 ] && git push
 }
 
-search (){
-  cd "$gitary_data"
-  needle="$@"
-  if [ -n "$needle" ]; then
-    echo "          Term                 "
-    echo "-------------------------------"
-    found=$(grep --color --exclude-dir=.git -RP "$needle" . | sed 's/.\///' | sed 's/:/ => /')
-    echo "$found"
-  fi
-}
-
 setEditDate (){
   if [ -z "$datediff" ]; then
     date=$(date +'%Y-%m-%d %H:%M:%S')
@@ -88,6 +96,9 @@ commands (){
     "edit")
       edit
       ;;
+    "log")
+      log
+      ;;
     "search")
       shift
       search $@
@@ -100,11 +111,19 @@ commands (){
 
 help (){
   echo "
+Commands
+---------------------------------
 edit   - Edit today.
 search - Simple grep for term.
 -d -> Set edit date.
 -h -> Show help file.
 -m -> Quick add.
+
+Syntax
+------------------------------
+@Name_of_Person
+!Some_Property
+#Some_Tag
 "
   exit
 }
