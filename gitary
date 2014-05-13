@@ -76,8 +76,11 @@ commit (){
   git add -A "."
   [ -n "$(git status --porcelain)" ] && git commit -m "Auto commit 
  $(git status --porcelain)"
- # Push to origin if changes have been commited
- [ $(git shortlog origin/master..master | wc -l ) -gt 0 ] && git push
+  # Push to origin if changes have been commited and we have a valid url
+  if [ $(git shortlog origin/master..master | wc -l) -gt 0 ] \
+  && [ $(git remote show origin 3>/dev/null| grep -c "Push  URL:") -gt 0 ]; then
+    git push
+  fi
 }
 
 setEditDate (){
