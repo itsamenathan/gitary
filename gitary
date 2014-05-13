@@ -4,9 +4,9 @@ datediff='today'
 commitmsg=''
 template=''
 
-add(){
+addfile(){
   shift
-  local datefile=$(datetofile $datediff)
+  local datefile=$(datetofile "$datediff")
   for file in $@
   do
     cp $file $(dirname "$datefile")
@@ -16,7 +16,7 @@ add(){
 }
 
 edit(){
-  local datefile=$(datetofile $datediff)
+  local datefile=$(datetofile "$datediff")
   [ ! -d $(dirname "$datefile") ] && mkdir -p $(dirname "$datefile")
   if [ "$commitmsg" ]; then
     echo "$commitmsg" >> "$datefile"
@@ -53,7 +53,6 @@ openeditor (){
     case "$EDITOR" in
       "vim")
         $EDITOR $file -c"read $template | :vsplit | :wincmd l" $(datetofile "yesterday") -c":bn | :split | :wincmd j" $gitary_data/help -c":bn | :wincmd h"
-        # vim /tmp/blah -c"read $template | :vsplit | :wincmd l" $(datetofile "yesterday") -c":bn | :split | :wincmd j" $(datetofile "-1 year") -c":bn | :wincmd h"
         ;;
       *)
         $EDITOR $file 
@@ -88,7 +87,7 @@ datetofile (){
 commands (){
   case "$1" in
     "add")
-      add $@
+      addfile $@
       ;;
     "edit")
       edit
