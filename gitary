@@ -1,32 +1,27 @@
 #!/bin/bash
 
-datediff=''
-date=''
+datediff='today'
 commitmsg=''
 template=''
 
 add(){
   shift
-  setEditDate
-  read Y M D h m s <<< ${date//[-: ]/ }
+  local datefile=$(datetofile $datediff)
   for file in $@
   do
-    cp $file $gitary_data/$Y/$M/
-    echo "!file $file" >> $gitary_data/$Y/$M/$D
+    cp $file $(dirname "$datefile")
+    echo "!file $file" >> $datefile
   done
   edit
 }
 
 edit(){
-  setEditDate
-  # parse date into variables 
-  read Y M D h m s <<< ${date//[-: ]/ }
-  # Make path for new files 
-  [ ! -d "$gitary_data/$Y/$M" ] && mkdir -p "$gitary_data/$Y/$M"
+  local datefile=$(datetofile $datediff)
+  [ ! -d $(dirname "$datefile") ] && mkdir -p $(dirname "$datefile")
   if [ "$commitmsg" ]; then
-    echo "$commitmsg" >> "$gitary_data/$Y/$M/$D"
+    echo "$commitmsg" >> "$datefile"
   else
-    openeditor "$gitary_data/$Y/$M/$D"
+    openeditor "$datefile"
   fi
   commit
 }
@@ -57,7 +52,8 @@ openeditor (){
   if [ ! -f $file ]; then
     case "$EDITOR" in
       "vim")
-        $EDITOR $file +"read $template"
+        $EDITOR $file -c"read $template | :vsplit | :wincmd l" $(datetofile "yesterday") -c":bn | :split | :wincmd j" $gitary_data/help -c":bn | :wincmd h"
+        # vim /tmp/blah -c"read $template | :vsplit | :wincmd l" $(datetofile "yesterday") -c":bn | :split | :wincmd j" $(datetofile "-1 year") -c":bn | :wincmd h"
         ;;
       *)
         $EDITOR $file 
@@ -65,7 +61,7 @@ openeditor (){
     esac
   # Just open the file
   else
-    $EDITOR $file 
+    $EDITOR $file -c":vsplit | :wincmd l" $(datetofile "yesterday") -c":bn | :split | :wincmd j" $gitary_data/help -c":bn | :wincmd h"
   fi
 }
 
@@ -83,12 +79,10 @@ commit (){
   fi
 }
 
-setEditDate (){
-  if [ -z "$datediff" ]; then
-    date=$(date +'%Y-%m-%d %H:%M:%S')
-  else
-    date=$(date -d "$datediff" +'%Y-%m-%d %H:%M:%S')
-  fi
+datetofile (){
+    local date=$(date -d "$1" +'%Y-%m-%d')
+    read Y M D <<< ${date//[-]/ }
+    echo "$gitary_data/$Y/$M/$D"
 }
 
 commands (){
