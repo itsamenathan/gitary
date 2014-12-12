@@ -37,6 +37,15 @@ search (){
   fi
 }
 
+show (){
+  local datefile=$(datetofile "$datediff")
+  if [ -f $datefile ]; then
+    cat $datefile
+  else
+    echo "Date doesn't exist"
+  fi
+}
+
 log(){
   cd "$gitary_data"
   if hash tig 2>/dev/null; then
@@ -95,6 +104,10 @@ commands (){
     "log")
       log
       ;;
+    "show")
+      shift
+      show $@
+      ;;
     "search")
       shift
       search $@
@@ -113,6 +126,7 @@ add    - Add arbitrary file.
 edit   - Edit today.
 log    - Show git log.
 search - Simple grep for term.
+show   - Show file.
 -d -> Set edit date.
 -h -> Show help file.
 -m -> Quick add.
