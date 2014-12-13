@@ -113,7 +113,8 @@ commands (){
       search $@
       ;;
     *)
-      echo "Try --help, because $1 didn't work"
+      help
+      exit 1
       ;;
   esac
 }
