@@ -61,7 +61,7 @@ openeditor (){
   if [ ! -f $file ]; then
     case "$EDITOR" in
       "vim")
-        $EDITOR $file -c"read $template | :vsplit | :wincmd l" $(datetofile "yesterday") -c":bn | :split | :wincmd j" $gitary_data/help -c":bn | :wincmd h"
+        $EDITOR $file -c"read $gitary_template | :vsplit | :wincmd l" $(datetofile "yesterday") -c":bn | :split | :wincmd j" $gitary_data/help -c":bn | :wincmd h"
         ;;
       *)
         $EDITOR $file 
@@ -142,13 +142,15 @@ Syntax
 }
 
 [ -z "$GITARY_DATA" ] && gitary_data="$HOME/.gitary" || gitary_data=$GITARY_DATA
-template="$gitary_data/template"
+[ -z "$GITARY_TEMPLATE" ] && gitary_template="$gitary_data/template" || gitary_template=$GITARY_TEMPLATE
 
 if [ ! -d "$gitary_data/.git" ]; then
   echo "$gitary_data is not a git repo, please run \`git init\` inside"
   echo "Or set GITARY_DATA to your git directory"
   exit
 fi
+
+[ ! -f $gitary_template ] && touch $gitary_template
 
 ARGS=$(getopt -o d:hm:t: -l "date:,help,message:" -n "gitary" -- "$@");
 eval set -- "$ARGS";
