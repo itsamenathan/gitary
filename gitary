@@ -7,9 +7,8 @@ template=''
 addfile(){
   shift
   local datefile=$(datetofile "$datediff")
-  for file in $@
-  do
-    cp $file $(dirname "$datefile")
+  for file in "$@"; do
+    cp "$file" $(dirname "$datefile")
     echo "!file $file" >> $datefile
   done
   edit
@@ -32,7 +31,7 @@ search (){
   if [ -n "$needle" ]; then
     echo "          Term                 "
     echo "-------------------------------"
-    found=$(grep --color --exclude-dir=.git -RP "$needle" . | sed 's/.\///' | sed 's/:/ => /')
+    found=$(grep --color --exclude-dir=.git -RP "$needle" [1-9]* | sed 's/.\///' | sed 's/:/ => /' | sort)
     echo "$found"
   fi
 }
@@ -96,7 +95,7 @@ datetofile (){
 commands (){
   case "$1" in
     "add")
-      addfile $@
+      addfile "$@"
       ;;
     "edit")
       edit
@@ -106,11 +105,11 @@ commands (){
       ;;
     "show")
       shift
-      show $@
+      show "$@"
       ;;
     "search")
       shift
-      search $@
+      search "$@"
       ;;
     *)
       help
