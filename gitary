@@ -29,9 +29,8 @@ search (){
   cd "$gitary_data"
   needle="$@"
   if [ -n "$needle" ]; then
-    echo "          Term                 "
-    echo "-------------------------------"
-    found=$(grep --color --exclude-dir=.git -RP "$needle" [1-9]* | sed 's/.\///' | sed 's/:/ => /' | sort)
+    needle="(?i)$needle"
+    found=$(grep --color --exclude-dir=.git -RP "$needle" [1-9]* | grep -v "== .* ==" | sed 's/:/ => /' | sort)
     echo "$found"
   fi
 }
