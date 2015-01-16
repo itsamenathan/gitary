@@ -36,6 +36,11 @@ search (){
   fi
 }
 
+status (){
+  cd "$gitary_data"
+  git status
+}
+
 show (){
   local datefile=$(datetofile "$datediff")
   if [ -f $datefile ]; then
@@ -110,6 +115,10 @@ commands (){
     "search")
       shift
       search "$@"
+      ;;
+    "status")
+      shift
+      status "$@"
       ;;
     *)
       help
