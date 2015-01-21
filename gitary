@@ -40,6 +40,12 @@ status (){
   git status
 }
 
+pull (){
+  cd "$gitary_data"
+  git pull
+}
+
+
 show (){
   local datefile=$(datetofile "$datediff")
   if [ -f $datefile ]; then
@@ -127,6 +133,10 @@ commands (){
       shift
       status "$@"
       ;;
+    "pull")
+      shift
+      pull "$@"
+      ;;
     *)
       help
       exit 1
@@ -143,6 +153,8 @@ edit   - Edit today.
 log    - Show git log.
 search - Simple grep for term.
 show   - Show file.
+status - git status
+pull   - git pull
 -d -> Set edit date.
 -h -> Show help file.
 -m -> Quick add.
