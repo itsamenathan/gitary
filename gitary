@@ -2,7 +2,6 @@
 
 datediff='today'
 commitmsg=''
-template=''
 
 addfile(){
   shift
@@ -67,27 +66,19 @@ log(){
 openeditor (){
   file="$@"
   # If its a new file, open our default template
-  if [ ! -f $file ]; then
-    case "$EDITOR" in
-      "vim")
-        $EDITOR $file -c"read $gitary_template | :vsplit" \
-                $(datetofile "yesterday") -c":wincmd l | :b 2 | :split | :vsplit" \
-                $(datetofile "-6 months") -c":wincmd l | :b 3 " \
-                $(datetofile "-1 year")   -c":wincmd j | :b 4 | :vsplit" \
-                $gitary_data/help -c":wincmd l | :b 5 | :wincmd h | :wincmd h"
-        ;;
-      *)
-        $EDITOR $file 
-        ;;
-    esac
-  # Just open the file
-  else
-    $EDITOR $file -c":vsplit" \
-            $(datetofile "yesterday") -c":wincmd l | :b 2 | :split | :vsplit" \
-            $(datetofile "-6 months") -c":wincmd l | :b 3 " \
-            $(datetofile "-1 year")   -c":wincmd j | :b 4 | :vsplit" \
-            $gitary_data/help -c":wincmd l | :b 5 | :wincmd h | :wincmd h"
-  fi
+  case "$EDITOR" in
+    "vim")
+      [ ! -f $file ] && template="read $gitary_template | "
+      $EDITOR $file -c"$template :vsplit" \
+              $(datetofile "$datediff-1day") -c":wincmd l | :b 2 | :split | :vsplit" \
+              $(datetofile "$datediff-6months") -c":wincmd l | :b 3 " \
+              $(datetofile "$datediff-1 year")   -c":wincmd j | :b 4 | :vsplit" \
+              $gitary_data/help -c":wincmd l | :b 5 | :wincmd h | :wincmd h"
+      ;;
+    *)
+      $EDITOR $file 
+      ;;
+  esac
 }
 
 commit (){
