@@ -1,6 +1,6 @@
 #!/bin/bash
 
-datediff='today'
+datediff=$(date -d 'today' +"%Y-%m-%d")
 commitmsg=''
 
 addfile(){
@@ -177,7 +177,7 @@ while true; do
     -d|--date)
       shift;
       if [ -n "$1" ]; then
-        datediff="$1";
+        datediff=$(date -d "$1" +"%Y-%m-%d")
         shift;
       fi 
       ;;
