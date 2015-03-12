@@ -44,6 +44,12 @@ pull (){
   git pull
 }
 
+push (){
+  cd "$gitary_data"
+  git push
+}
+
+
 
 show (){
   local datefile=$(datetofile "$datediff")
@@ -128,6 +134,10 @@ commands (){
       shift
       pull "$@"
       ;;
+    "push")
+      shift
+      push "$@"
+      ;;
     *)
       help
       exit 1
@@ -146,6 +156,7 @@ search - Simple grep for term.
 show   - Show file.
 status - git status
 pull   - git pull
+push   - git push
 -d -> Set edit date.
 -h -> Show help file.
 -m -> Quick add.
