@@ -1,7 +1,29 @@
 #!/bin/bash
 
+# Colors
+ESC_SEQ="\x1b["
+COL_RESET=$ESC_SEQ"39;49;00m"
+COL_RED=$ESC_SEQ"31;01m"
+COL_GREEN=$ESC_SEQ"32;01m"
+
 datediff=$(date -d 'today' +"%Y-%m-%d")
 commitmsg=''
+
+hist(){
+  shift
+  local days=30
+  if [ -n "$1" ]; then
+    days=$1
+  fi
+  for i in `seq 1 $days`; do
+    local file=$(datetofile "$datediff-$i day")
+    if [ -f $file ]; then
+      echo -e "$COL_GREEN${file#$gitary_data/}$COL_RESET"
+    else
+      echo -e "$COL_RED${file#$gitary_data/}$COL_RESET"
+    fi
+  done
+}
 
 addfile(){
   shift
@@ -112,6 +134,9 @@ commands (){
     "add")
       addfile "$@"
       ;;
+    "hist")
+      hist "$@"
+      ;;
     "edit")
       edit
       ;;
@@ -151,6 +176,7 @@ Commands
 ---------------------------------
 add    - Add arbitrary file.
 edit   - Edit today.
+hist   - Last 30 days status.
 log    - Show git log.
 search - Simple grep for term.
 show   - Show file.
