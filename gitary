@@ -15,9 +15,10 @@ hist(){
   if [ -n "$1" ]; then
     days=$1
   fi
-  for i in `seq 1 $days`; do
-    local file=$(datetofile "$datediff-$i day")
-    if [ -f $file ]; then
+  local file
+  for i in $(seq 1 "$days"); do
+    file=$(datetofile "$datediff-$i day")
+    if [ -f "$file" ]; then
       echo -e "$COL_GREEN${file#$gitary_data/}$COL_RESET"
     else
       echo -e "$COL_RED${file#$gitary_data/}$COL_RESET"
@@ -27,17 +28,19 @@ hist(){
 
 addfile(){
   shift
-  local datefile=$(datetofile "$datediff")
+  local datefile
+  datefile=$(datetofile "$datediff")
   for file in "$@"; do
-    cp "$file" $(dirname "$datefile")
-    echo "!file $file" >> $datefile
+    cp "$file" "$(dirname "$datefile")"
+    echo "!file $file" >> "$datefile"
   done
   edit
 }
 
 edit(){
-  local datefile=$(datetofile "$datediff")
-  [ ! -d $(dirname "$datefile") ] && mkdir -p $(dirname "$datefile")
+  local datefile
+  datefile=$(datetofile "$datediff")
+  [ ! -d "$(dirname "$datefile")" ] && mkdir -p "$(dirname "$datefile")"
   if [ "$commitmsg" ]; then
     echo "$commitmsg" >> "$datefile"
   else
@@ -48,7 +51,7 @@ edit(){
 
 search (){
   cd "$gitary_data"
-  needle="$@"
+  needle=$*
   if [ -n "$needle" ]; then
     needle="(?i)$needle"
     found=$(grep --color --exclude-dir=.git -RP "$needle" [1-9]* | grep -v "== .* ==" | sed 's/:/ => /' | sort)
@@ -74,9 +77,10 @@ push (){
 
 
 show (){
-  local datefile=$(datetofile "$datediff")
-  if [ -f $datefile ]; then
-    cat $datefile
+  local datefile
+  datefile=$(datetofile "$datediff")
+  if [ -f "$datefile" ]; then
+    cat "$datefile"
   else
     echo "Date doesn't exist"
   fi
@@ -92,19 +96,19 @@ log(){
 }
 
 openeditor (){
-  file="$@"
+  file=$*
   # If its a new file, open our default template
   case "$EDITOR" in
     "vim")
-      [ ! -f $file ] && template="read $gitary_template | "
-      $EDITOR $file -c"$template :vsplit" \
-              $(datetofile "$datediff-1day") -c":wincmd l | :b 2 | :split | :vsplit" \
-              $(datetofile "$datediff-6months") -c":wincmd l | :b 3 " \
-              $(datetofile "$datediff-1 year")   -c":wincmd j | :b 4 | :vsplit" \
-              $gitary_data/help -c":wincmd l | :b 5 | :wincmd h | :wincmd h"
+      [ ! -f "$file" ] && template="read $gitary_template | "
+      $EDITOR "$file" -c"$template :vsplit" \
+              "$(datetofile "$datediff-1day")" -c":wincmd l | :b 2 | :split | :vsplit" \
+              "$(datetofile "$datediff-6months")" -c":wincmd l | :b 3 " \
+              "$(datetofile "$datediff-1 year")"   -c":wincmd j | :b 4 | :vsplit" \
+              "$gitary_data"/help -c":wincmd l | :b 5 | :wincmd h | :wincmd h"
       ;;
     *)
-      $EDITOR $file 
+      $EDITOR "$file"
       ;;
   esac
 }
@@ -117,14 +121,15 @@ commit (){
   [ -n "$(git status --porcelain)" ] && git commit -m "Auto commit 
  $(git status --porcelain)"
   # Push to origin if changes have been commited and we have a valid url
-  if [ $(git shortlog origin/master..master | wc -l) -gt 0 ] \
-  && [ $(git remote show origin 3>/dev/null| grep -c "Push  URL:") -gt 0 ]; then
+  if [ "$(git shortlog origin/master..master | wc -l)" -gt 0 ] \
+  && [ "$(git remote show origin 3>/dev/null| grep -c "Push  URL:")" -gt 0 ]; then
     git push
   fi
 }
 
 datetofile (){
-    local date=$(date -d "$1" +'%Y-%m-%d')
+    local date
+    date=$(date -d "$1" +'%Y-%m-%d')
     read Y M D <<< ${date//[-]/ }
     echo "$gitary_data/$Y/$M/$D"
 }
@@ -205,7 +210,7 @@ if [ ! -d "$gitary_data/.git" ]; then
   exit
 fi
 
-[ ! -f $gitary_template ] && touch $gitary_template
+[ ! -f "$gitary_template" ] && touch "$gitary_template"
 
 ARGS=$(getopt -o d:hm:t: -l "date:,help,message:" -n "gitary" -- "$@");
 eval set -- "$ARGS";
