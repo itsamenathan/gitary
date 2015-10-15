@@ -16,7 +16,7 @@ hist(){
     days=$1
   fi
   local file
-  for i in $(seq 1 "$days"); do
+  for i in $(seq 0 "$days"); do
     file=$(datetofile "$datediff-$i day")
     if [ -f "$file" ]; then
       echo -e "$COL_GREEN${file#$gitary_data/}$COL_RESET"
