@@ -101,7 +101,7 @@ openeditor (){
   case "$EDITOR" in
     "vim")
       [ ! -f "$file" ] && template="read $gitary_template | "
-      $EDITOR "$file" -c"$template :vsplit" \
+      $EDITOR "$file" -n -c"$template :vsplit" \
               "$(datetofile "$datediff-1day")" -c":wincmd l | :b 2 | :split | :vsplit" \
               "$(datetofile "$datediff-6months")" -c":wincmd l | :b 3 " \
               "$(datetofile "$datediff-1 year")"   -c":wincmd j | :b 4 | :vsplit" \
