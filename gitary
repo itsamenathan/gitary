@@ -9,7 +9,7 @@ COL_GREEN=$ESC_SEQ"32;01m"
 datediff=$(date -d 'today' +"%Y-%m-%d")
 commitmsg=''
 
-hist(){
+streak(){
   shift
   local days=30
   if [ -n "$1" ]; then
@@ -17,7 +17,7 @@ hist(){
   fi
   local file
   for i in $(seq 0 "$days"); do
-    file=$(datetofile "$datediff-$i day")
+    file=$(_datetofile "$datediff-$i day")
     if [ -f "$file" ]; then
       echo -e "$COL_GREEN${file#$gitary_data/}$COL_RESET"
     else
@@ -26,10 +26,31 @@ hist(){
   done
 }
 
+hist(){
+  shift
+  local days=30
+  if [ -n "$1" ]; then
+    days=$1
+  fi
+  for entry in $(_allentries | sort -r); do
+    [ "$days" -eq "0" ] && break
+    echo "${entry/$gitary_data\/}"
+    days=$((--days))
+  done
+}
+
+random(){
+  local randfile
+  randfile=$(_allentries | sort -R | head -n 1)
+  echo "${randfile/$gitary_data\/}"
+  echo "----------"
+  cat "$randfile"
+}
+
 addfile(){
   shift
   local datefile
-  datefile=$(datetofile "$datediff")
+  datefile=$(_datetofile "$datediff")
   for file in "$@"; do
     cp "$file" "$(dirname "$datefile")"
     echo "!file $file" >> "$datefile"
@@ -39,7 +60,7 @@ addfile(){
 
 edit(){
   local datefile
-  datefile=$(datetofile "$datediff")
+  datefile=$(_datetofile "$datediff")
   [ ! -d "$(dirname "$datefile")" ] && mkdir -p "$(dirname "$datefile")"
   if [ "$commitmsg" ]; then
     echo "$commitmsg" >> "$datefile"
@@ -49,7 +70,7 @@ edit(){
   commit
 }
 
-search (){
+search(){
   cd "$gitary_data"
   needle=$*
   if [ -n "$needle" ]; then
@@ -59,26 +80,24 @@ search (){
   fi
 }
 
-status (){
+status(){
   cd "$gitary_data"
   git status
 }
 
-pull (){
+pull(){
   cd "$gitary_data"
   git pull
 }
 
-push (){
+push(){
   cd "$gitary_data"
   git push
 }
 
-
-
-show (){
+show(){
   local datefile
-  datefile=$(datetofile "$datediff")
+  datefile=$(_datetofile "$datediff")
   if [ -f "$datefile" ]; then
     cat "$datefile"
   else
@@ -95,7 +114,7 @@ log(){
   fi
 }
 
-openeditor (){
+openeditor(){
   file=$*
   # If its a new file, open our default template
   case "$EDITOR" in
@@ -103,9 +122,9 @@ openeditor (){
       [ -f "$file" ] || template="0read $gitary_template | "
       $EDITOR -c ":set nosplitright | :set nosplitbelow" "$file" \
               -c "$template :vsplit" \
-              "$(datetofile "$datediff-1 day")" -c ":wincmd l | :b 2 | :split | :vsplit" \
-              "$(datetofile "$datediff-6 months")" -c ":wincmd l | :b 3 " \
-              "$(datetofile "$datediff-1 year")"   -c ":wincmd j | :b 4 | :vsplit" \
+              "$(_datetofile "$datediff-1 day")" -c ":wincmd l | :b 2 | :split | :vsplit" \
+              "$(_datetofile "$datediff-6 months")" -c ":wincmd l | :b 3 " \
+              "$(_datetofile "$datediff-1 year")"   -c ":wincmd j | :b 4 | :vsplit" \
               "$gitary_data"/help -c ":wincmd l | :b 5 | :wincmd h | :wincmd h"
       ;;
     *)
@@ -114,7 +133,7 @@ openeditor (){
   esac
 }
 
-commit (){
+commit(){
   # go to our entry directory
   cd "$gitary_data"
   # add all the files, and commit with list offiles added 
@@ -128,17 +147,27 @@ commit (){
   fi
 }
 
-datetofile (){
+_datetofile(){
     local date
     date=$(date -d "$1" +'%Y-%m-%d')
     read Y M D <<< ${date//[-]/ }
     echo "$gitary_data/$Y/$M/$D"
 }
 
-commands (){
+_allentries(){
+  local files
+  files=$(find "$gitary_data" -type f -not -path "$gitary_data/.git*" -not -name "template" -not -name "help" -exec grep -Iq . {} \; -print)
+  echo "$files"
+}
+
+
+commands(){
   case "$1" in
     "add")
       addfile "$@"
+      ;;
+    "streak")
+      streak "$@"
       ;;
     "hist")
       hist "$@"
@@ -169,6 +198,12 @@ commands (){
       shift
       push "$@"
       ;;
+    "random")
+      random
+      ;;
+    "rand")
+      random
+      ;;
     *)
       help
       exit 1
@@ -182,13 +217,15 @@ Commands
 ---------------------------------
 add    - Add arbitrary file.
 edit   - Edit today.
-hist   - Last 30 days status.
+hist   - Last 30 entries.
+streak - Last 30 days status.
 log    - Show git log.
 search - Simple grep for term.
 show   - Show file.
 status - git status
 pull   - git pull
 push   - git push
+rand - Show a random entry.
 -d -> Set edit date.
 -h -> Show help file.
 -m -> Quick add.
@@ -222,7 +259,7 @@ while true; do
       if [ -n "$1" ]; then
         datediff=$(date -d "$1" +"%Y-%m-%d")
         shift;
-      fi 
+      fi
       ;;
     -h|--help)
       shift;
